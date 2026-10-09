@@ -1,0 +1,2 @@
+aliases:
+    install: go install cmd/git-go/main.go
