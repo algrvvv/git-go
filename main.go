@@ -1,25 +1,34 @@
 package main
 
 import (
+	"errors"
+	"flag"
+	"fmt"
 	"log/slog"
 	"os"
 
 	"github.com/algrvvv/git-go/app"
-)
-
-var (
-	debug    bool
-	list     bool
-	checkout bool
-	meta     bool
+	"github.com/algrvvv/git-go/git"
 )
 
 func main() {
-	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	}))
 
-	application := app.NewApp(logger)
+	cfg, err := app.ParseConfig(os.Args[1:])
+	if err != nil {
+		if errors.Is(err, flag.ErrHelp) {
+			os.Exit(0)
+		}
+		fmt.Println(err)
+		os.Exit(2)
+	}
 
-	if err := application.Run(); err != nil {
-		logger.Error("failed to run application", "error", err)
+	cli := git.NewGitCli()
+	application := app.NewApp(cli, logger, cfg)
+
+	if err = application.Run(); err != nil {
+		fmt.Println(err)
 	}
 }
