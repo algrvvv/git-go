@@ -1,32 +1,10 @@
 package domain
 
-import "time"
-
 type GitBranch struct {
 	Name string
-	Desc string
+	Meta string
 }
 
-type GitBranchOptions struct {
-	Name        string
-	Description string
-
-	LastCommitAt time.Time
-	LastCheckout time.Time
-
-	IsRemote  bool
-	IsMerged  bool
-	IsCurrent bool
-}
-
-func NewGitBranch(options ...GitBranchOptions) *GitBranch {
-	branch := &GitBranch{}
-
-	if len(options) == 1 {
-		option := options[0]
-		branch.Name = option.Name
-		branch.Desc = option.Description
-	}
-
-	return branch
+func NewGitBranch(name, meta string) *GitBranch {
+	return &GitBranch{Name: name, Meta: meta}
 }
