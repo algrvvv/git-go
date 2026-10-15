@@ -19,7 +19,10 @@ func (g *GitCli) Checkout(branch *domain.GitBranch) error {
 		return errors.New("empty branch")
 	}
 
-	cmd := gitcmd.NewBuilder("checkout", branch.Name).Build()
+	cmd := gitcmd.NewBuilder("checkout", branch.Name).
+		Build().
+		WithOutput()
+
 	return cmd.Run()
 }
 
@@ -57,7 +60,10 @@ func (g *GitCli) CreateBranch(name string, meta string) (*domain.GitBranch, erro
 
 func (g *GitCli) ListBranches() ([]*domain.GitBranch, error) {
 	builder := &strings.Builder{}
-	cmd := gitcmd.NewBuilder("branch").
+	cmd := gitcmd.NewBuilder().
+		Arg("branch").
+		Arg("--sort=-committerdate").
+		Arg("--format=\"%(refname:short)<split>%(committerdate:short)\"").
 		Build().
 		WithOutput(builder)
 
@@ -70,10 +76,19 @@ func (g *GitCli) ListBranches() ([]*domain.GitBranch, error) {
 
 	var branches []*domain.GitBranch
 	for brnch := range strings.FieldsSeq(result) {
-		name := strings.TrimSpace(brnch)
-		meta, _ := g.GetMetaForBranch(name)
+		// format: 1995-1996<split>2026-10-14
+		branchInfo := strings.TrimSpace(brnch)
+		branchInfo = strings.ReplaceAll(branchInfo, "\"", "")
+		branchInfoParts := strings.Split(branchInfo, "<split>")
+		if len(branchInfoParts) != 2 {
+			continue
+		}
 
-		branches = append(branches, domain.NewGitBranch(name, meta))
+		name := branchInfoParts[0]
+		date := branchInfoParts[1]
+		meta, _ := g.GetMetaForBranch(name)
+		branch := domain.NewGitBranch(name, meta).SetDate(date)
+		branches = append(branches, branch)
 	}
 
 	return branches, nil
