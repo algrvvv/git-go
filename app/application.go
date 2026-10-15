@@ -124,6 +124,8 @@ func (a *App) checkoutByNameOrMeta(args []string) error {
 
 	a.log.Debug("found branch", "branch", branch)
 
+	fmt.Printf(dim("selected branch: %s - %s\n"), branch.Name, branch.Meta)
+
 	if err = a.git.Checkout(branch); err != nil {
 		return err
 	}
