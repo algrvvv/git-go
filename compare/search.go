@@ -66,13 +66,11 @@ func (s *Searcher) SearchByQuery() (branch *domain.GitBranch, err error) {
 
 	result := newCandidate()
 	for cnd := range s.candidates {
-		s.log.Debug(cnd.score.ToString())
 		s.log.Debug(
-			"total scores for branches in current moment",
-			"result-total",
-			result.score.Total(),
-			"candidate-total",
-			cnd.score.Total(),
+			"candidate: compare branches score",
+			slog.String("branch", cnd.branch.Name),
+			slog.Float64("now", result.score.Total()),
+			slog.Float64("candidate", cnd.score.Total()),
 		)
 
 		if result.score.Total() < cnd.score.Total() {
@@ -89,6 +87,13 @@ func (s *Searcher) rank(branch *domain.GitBranch) {
 	score := NewScore(branch.Name)
 	score.BranchNameScore = s.branchNameSearch(branch)
 	score.TextScore = s.textSearch(branch)
+	score.FreshnessScore = s.freshnessSearch(branch)
+
+	s.log.Debug(
+		"new candidate",
+		slog.String("branch", branch.Name),
+		slog.String("score", score.ToString()),
+	)
 
 	c := newCandidate()
 	c.setWithoutLocks(branch, score)
