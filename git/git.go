@@ -11,6 +11,7 @@ type Brancher interface {
 	ListBranches() ([]*domain.GitBranch, error)
 	GetCurrentBranchName() (string, error)
 	Checkout(branch *domain.GitBranch) error
+	Pull() error
 }
 
 type MetaBrancher interface {

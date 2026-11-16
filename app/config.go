@@ -8,6 +8,7 @@ type Config struct {
 	List     bool
 	Checkout bool
 	Meta     bool
+	Pull     bool
 	Args     []string
 }
 
@@ -19,6 +20,7 @@ func ParseConfig(argv []string) (Config, error) {
 	fs.BoolVar(&cfg.List, "list", false, "list all branches")
 	fs.BoolVar(&cfg.Checkout, "b", false, "checkout and create branch")
 	fs.BoolVar(&cfg.Meta, "meta", false, "set meta for current branch")
+	fs.BoolVar(&cfg.Pull, "pull", false, "pull after branch switch")
 
 	if err := fs.Parse(argv); err != nil {
 		return Config{}, err

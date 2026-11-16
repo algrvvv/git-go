@@ -130,5 +130,12 @@ func (a *App) checkoutByNameOrMeta(args []string) error {
 		return err
 	}
 
+	if a.cfg.Pull {
+		// делаем пулл изменений, если необходимо
+		if err = a.git.Pull(); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }

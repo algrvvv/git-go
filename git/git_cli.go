@@ -26,6 +26,14 @@ func (g *GitCli) Checkout(branch *domain.GitBranch) error {
 	return cmd.Run()
 }
 
+func (g *GitCli) Pull() error {
+	cmd := gitcmd.NewBuilder("pull").
+		Build().
+		WithOutput()
+
+	return cmd.Run()
+}
+
 // ChangeBranchMeta метод с интерактивным изменением меты ветки
 func (g *GitCli) ChangeBranchMeta(name string) error {
 	cmd := gitcmd.NewBuilder().
