@@ -34,6 +34,19 @@ func (a *App) Run() error {
 		return a.showBranchList()
 	case a.cfg.Checkout:
 		return a.createNewBranchAndCheckout()
+	case a.cfg.Pull && len(a.cfg.Args) != 0:
+		if err := a.checkoutByNameOrMeta(a.cfg.Args); err != nil {
+			return err
+		}
+
+		if a.cfg.Pull {
+			// делаем пулл изменений, если необходимо
+			if err := a.git.Pull(); err != nil {
+				return err
+			}
+		}
+
+		return nil
 	case len(a.cfg.Args) != 0:
 		return a.checkoutByNameOrMeta(a.cfg.Args)
 	}
@@ -128,13 +141,6 @@ func (a *App) checkoutByNameOrMeta(args []string) error {
 
 	if err = a.git.Checkout(branch); err != nil {
 		return err
-	}
-
-	if a.cfg.Pull {
-		// делаем пулл изменений, если необходимо
-		if err = a.git.Pull(); err != nil {
-			return err
-		}
 	}
 
 	return nil
